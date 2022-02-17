@@ -14,36 +14,38 @@ jobs:
       - name: Get storage
         shell: bash
         run: |
-          sudo lsblk
+          whoami
           echo
-          sudo df -h
+          lsblk
           echo
-          sudo ls -ahl /mnt
+          df -h
           echo
-          sudo du -h /mnt
+          ls -ahl /mnt
+          echo
+          du -h /mnt
 
       - name: Get memory
         shell: bash
         run: |
-          sudo free -h
+          free -h
           echo
-          sudo swapon --show
+          swapon --show
 
       - name: Remove swap
         shell: bash
         run: |
-          sudo swapoff -a
+          swapoff -a
           echo
-          sudo swapon --show
+          swapon --show
           echo
-          sudo rm /mnt/swapfile
+          rm /mnt/swapfile
           echo
-          sudo df -h
+          df -h
 
       - name: Create new swap
         shell: bash
         run: |
-          sudo fallocate -l 4G /mnt/new-swapfile
-          sudo chmod 600 /mnt/new-swapfile
-          sudo mkswap /mnt/new-swapfile
-          sudo swapon /mnt/new-swapfile
+          fallocate -l 4G /mnt/new-swapfile
+          chmod 600 /mnt/new-swapfile
+          mkswap /mnt/new-swapfile
+          swapon /mnt/new-swapfile
