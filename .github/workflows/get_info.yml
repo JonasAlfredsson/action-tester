@@ -1,0 +1,49 @@
+name: "get-info"
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+
+jobs:
+  extract_worker_info:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Get storage
+        shell: bash
+        run: |
+          sudo lsblk
+          echo
+          sudo df -h
+          echo
+          sudo ls -ahl /mnt
+          echo
+          sudo du -h /mnt
+
+      - name: Get memory
+        shell: bash
+        run: |
+          sudo free -h
+          echo
+          sudo swapon --show
+
+      - name: Remove swap
+        shell: bash
+        run: |
+          sudo swapoff -a
+          echo
+          sudo swapon --show
+          echo
+          sudo rm /mnt/swapfile
+          echo
+          sudo df -h
+
+      - name: Create new swap
+        shell: bash
+        run: |
+          sudo fallocate -l 4G /mnt/new-swapfile
+          sudo chmod 600 /mnt/new-swapfile
+          sudo mkswap /mnt/new-swapfile
+          sudo swapon /mnt/new-swapfile
