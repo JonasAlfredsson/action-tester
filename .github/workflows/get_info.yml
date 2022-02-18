@@ -14,38 +14,47 @@ jobs:
       - name: Get storage
         shell: bash
         run: |
-          whoami
+          sudo whoami
           echo
-          lsblk
+          sudo lsblk
           echo
-          df -h
+          sudo df -h
           echo
-          ls -ahl /mnt
+          sudo ls -ahl /mnt
           echo
-          du -h /mnt
+          sudo du -h /mnt
+          echo
+          sudo cat /proc/cpuinfo
 
       - name: Get memory
         shell: bash
         run: |
-          free -h
+          sudo free -h
           echo
-          swapon --show
+          sudo swapon --show
 
       - name: Remove swap
         shell: bash
         run: |
-          swapoff -a
+          sudo swapoff -a
           echo
-          swapon --show
+          sudo swapon --show
           echo
-          rm /mnt/swapfile
+          sudo rm /mnt/swapfile
           echo
-          df -h
+          sudo df -h
 
       - name: Create new swap
         shell: bash
         run: |
-          fallocate -l 4G /mnt/new-swapfile
-          chmod 600 /mnt/new-swapfile
-          mkswap /mnt/new-swapfile
-          swapon /mnt/new-swapfile
+          sudo fallocate -l 4G /mnt/new-swapfile
+          sudo chmod 600 /mnt/new-swapfile
+          sudo mkswap /mnt/new-swapfile
+          sudo swapon /mnt/new-swapfile
+
+      - name: "Environment varirables"
+        shell: bash
+        run: |
+          echo "${PWD}"
+          echo "$GITHUB_WORKSPACE"
+          echo "${{ github.workspace }}"
