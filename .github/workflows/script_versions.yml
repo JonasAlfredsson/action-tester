@@ -1,0 +1,37 @@
+name: "script-version-test"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "master"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+
+jobs:
+  script_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: Current workdir
+        run: echo "Currently executing in $(pwd)" && find . -not -path "*/.git/*"
+
+      - name: Run script from workflows folder
+        run: .github/workflows/script_echo.sh
+
+      - name: Run script from .github folder
+        run: .github/script_echo.sh
+
+      # This step will fail.
+      - name: Run script from main folder (fail)
+        continue-on-error: true
+        run: script_echo.sh
+
+      # But this will not.
+      - name: Run script from main folder (success)
+        run: bash script_echo.sh
