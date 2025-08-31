@@ -1,0 +1,66 @@
+name: "environment-test"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "master"
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+
+jobs:
+  env_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v5
+
+      - name: This populates the env with some variables
+        run: bash .github/setup_env.sh >> $GITHUB_ENV
+
+      # Notice the printouts and when the variable is actually evaluated.
+      # What is present in GITHUB_ENV is also automatically added to the
+      # ENV, so it is possible to reference them directly as well.
+      - name: Use variables evaluated before execution
+        run: |
+          D=env-D &&
+          echo "A=${{ env.A }} A=${A} D=${D}" &&
+          echo 'A=${{ env.A }} A=${A} D=${D}' &&
+          echo B='${{ env.B }}' B="${{ env.B }}" B=${{ env.B }} D='${D}'
+
+      # Here B is loaded from GITHUB_ENV automatically, but we overwrite it
+      # for this task.
+      - name: Overwrite variables of the environment
+        env:
+          B: new
+        run: |
+          echo "A=${{ env.A }} A=${A}"
+          echo "B=${{ env.B }} B=${B}"
+          echo "C=${C}"
+
+      # Here we can see how a secret is handled. The sed commands is used to
+      # trick the runner into prining it, and the last sed is just how to
+      # restore a "spaced out" secret.
+      - name: How a secret is obfuscated
+        run: |
+          echo ${{secrets.EXAMPLE_SECRET}}
+          echo ${{secrets.EXAMPLE_SECRET}} | sed 's/./& /g'
+          echo ${{secrets.EXAMPLE_SECRET}} | sed 's/./& /g' | sed 's/ //g'
+
+      # It is also possible to manually add strings you want hidden in the
+      # logs.
+      - name: Single task with custom mask
+        run: |
+          echo "Visible: goosebumps"
+          echo "::add-mask::goosebumps"
+          echo "Hidden: goosebumps"
+
+      # This also carries over to scripts. Look inside the script to also
+      # understand how secret values used are masked.
+      - name: Use secrets in scripts
+        env:
+          EXAMPLE_SECRET: ${{ secrets.EXAMPLE_SECRET }}
+        run: bash env_echo.sh
