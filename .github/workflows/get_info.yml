@@ -49,9 +49,11 @@ jobs:
           sudo mkswap /mnt/new-swapfile
           sudo swapon /mnt/new-swapfile
 
-      - name: "Environment varirables"
+      - name: Show new memory and storage setup
         shell: bash
         run: |
-          echo "${PWD}"
-          echo "$GITHUB_WORKSPACE"
-          echo "${{ github.workspace }}"
+          sudo free -h
+          echo
+          sudo swapon --show
+          echo
+          sudo df -h
