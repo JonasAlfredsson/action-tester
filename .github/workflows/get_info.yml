@@ -1,10 +1,7 @@
 name: "get-info"
 
 on:
-  push:
-    branches:
-      - "main"
-      - "master"
+  workflow_dispatch:
 
 jobs:
   extract_worker_info:
