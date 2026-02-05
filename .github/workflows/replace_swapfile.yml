@@ -22,11 +22,17 @@ jobs:
       - name: Save swapfile path
         shell: bash
         run: |
-          if [ "$(sudo swapon --show --noheadings | wc -l)" -gt 0 ]; then
-            echo "SWAPFILE_PATH=$(sudo swapon --show --noheadings | head -n 1 | cut -d' ' -f1)" >> $GITHUB_ENV
-          else
+          nbr_swapfiles="$(sudo swapon --show --noheadings | wc -l)"
+          if [ "${nbr_swapfiles}" -eq 0 ]; then
             echo "No swapfile path found; using default"
             echo "SWAPFILE_PATH=/mnt/swapfile" >> $GITHUB_ENV
+          else
+            echo "SWAPFILE_PATH=$(sudo swapon --show --noheadings | head -n 1 | cut -d' ' -f1)" >> $GITHUB_ENV
+            if [ "${nbr_swapfiles}" -eq 1 ]; then
+              echo "Removing old swapfile  ${SWAPFILE_PATH}"
+            else
+              echo "More than one swapfile found; only removing ${SWAPFILE_PATH}"
+            fi
           fi
 
       - name: Remove swap
