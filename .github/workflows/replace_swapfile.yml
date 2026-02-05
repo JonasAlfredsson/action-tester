@@ -23,10 +23,10 @@ jobs:
         shell: bash
         run: |
           if [ "$(sudo swapon --show --noheadings | wc -l)" -gt 0 ]; then
-            echo "SWAPFILE_PATH='$(sudo swapon --show --noheadings | head -n 1 | cut -d' ' -f1)'" >> $GITHUB_ENV
+            echo "SWAPFILE_PATH=$(sudo swapon --show --noheadings | head -n 1 | cut -d' ' -f1)" >> $GITHUB_ENV
           else
             echo "No swapfile path found; using default"
-            echo "SWAPFILE_PATH='/mnt/swapfile'" >> $GITHUB_ENV
+            echo "SWAPFILE_PATH=/mnt/swapfile" >> $GITHUB_ENV
           fi
 
       - name: Remove swap
