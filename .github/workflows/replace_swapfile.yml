@@ -1,0 +1,62 @@
+name: "replace-swapfile"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  extract_worker_info:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Get info
+        shell: bash
+        run: |
+          sudo free -h
+          echo
+          sudo swapon --show
+          echo
+          sudo lsblk
+          echo
+          sudo df -h
+
+      - name: Save swapfile path
+        shell: bash
+        run: |
+          if [ "$(sudo swapon --show --noheadings | wc -l)" -gt 0 ]; then
+            echo "SWAPFILE_PATH='$(sudo swapon --show --noheadings | head -n 1 | cut -d' ' -f1)'" >> $GITHUB_ENV
+          else
+            echo "No swapfile path found; using default"
+            echo "SWAPFILE_PATH='/mnt/swapfile'" >> $GITHUB_ENV
+          fi
+
+      - name: Remove swap
+        shell: bash
+        run: |
+          sudo swapoff -a
+          echo
+          sudo swapon --show
+          echo
+          if [ -f "${SWAPFILE_PATH}" ]; then
+            sudo rm -v "${SWAPFILE_PATH}"
+            echo
+          fi
+          sudo df -h
+          echo
+          sudo swapon --show
+
+      - name: Create new swap
+        shell: bash
+        run: |
+          sudo fallocate -l 4G "${SWAPFILE_PATH}"
+          sudo chmod 600 "${SWAPFILE_PATH}"
+          sudo mkswap "${SWAPFILE_PATH}"
+          sudo swapon "${SWAPFILE_PATH}"
+
+      - name: Show new memory and storage setup
+        shell: bash
+        run: |
+          sudo free -h
+          echo
+          sudo swapon --show
+          echo
+          sudo df -h
